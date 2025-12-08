@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>submerge admin</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>submerge admin</h1>
+            <a href="/" class="view-site">view site</a>
+        </header>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('releases')">releases</button>
+            <button class="tab-btn" onclick="switchTab('artists')">artists</button>
+        </div>
+
+        <div class="admin-content" id="releasesTab">
+            <div class="admin-sidebar">
+                <button class="btn-primary" onclick="showAddReleaseForm()">+ add release</button>
+                <div class="releases-list" id="releasesList"></div>
+            </div>
+
+            <div class="admin-main">
+                <div id="addForm" class="form-container" style="display: none;">
+                    <h2>add new release</h2>
+                    <form id="releaseForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="artistId">artist</label>
+                            <select id="artistId" name="artistId" required>
+                                <option value="">select artist</option>
+                            </select>
+                            <small><a href="#" onclick="switchTab('artists'); return false;">+ add new artist</a></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="title">title</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date">date</label>
+                            <input type="text" id="date" name="date" placeholder="2024">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">cover image</label>
+                            <input type="file" id="image" name="image" accept="image/*">
+                            <small>or paste image URL</small>
+                            <input type="text" id="imageUrl" name="imageUrl" placeholder="https://...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>streaming links</label>
+                            <input type="url" id="spotifyUrl" name="spotifyUrl" placeholder="Spotify URL">
+                            <input type="url" id="soundcloudUrl" name="soundcloudUrl" placeholder="SoundCloud URL">
+                            <input type="url" id="bandcampUrl" name="bandcampUrl" placeholder="Bandcamp URL">
+                            <input type="url" id="appleMusicUrl" name="appleMusicUrl" placeholder="Apple Music URL">
+                            <input type="url" id="youtubeUrl" name="youtubeUrl" placeholder="YouTube URL">
+                            <input type="url" id="otherUrl" name="otherUrl" placeholder="Other URL">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">save release</button>
+                            <button type="button" class="btn-secondary" onclick="hideForm()">cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="editForm" class="form-container" style="display: none;">
+                    <h2>edit release</h2>
+                    <form id="editReleaseForm" enctype="multipart/form-data">
+                        <input type="hidden" id="editId" name="id">
+                        
+                        <div class="form-group">
+                            <label for="editArtistId">artist</label>
+                            <select id="editArtistId" name="artistId" required>
+                                <option value="">select artist</option>
+                            </select>
+                            <small><a href="#" onclick="switchTab('artists'); return false;">+ add new artist</a></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editTitle">title</label>
+                            <input type="text" id="editTitle" name="title" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDate">date</label>
+                            <input type="text" id="editDate" name="date">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editImage">cover image</label>
+                            <input type="file" id="editImage" name="image" accept="image/*">
+                            <small>or paste image URL</small>
+                            <input type="text" id="editImageUrl" name="imageUrl" placeholder="https://...">
+                            <div id="currentImagePreview" class="image-preview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>streaming links</label>
+                            <input type="url" id="editSpotifyUrl" name="spotifyUrl" placeholder="Spotify URL">
+                            <input type="url" id="editSoundcloudUrl" name="soundcloudUrl" placeholder="SoundCloud URL">
+                            <input type="url" id="editBandcampUrl" name="bandcampUrl" placeholder="Bandcamp URL">
+                            <input type="url" id="editAppleMusicUrl" name="appleMusicUrl" placeholder="Apple Music URL">
+                            <input type="url" id="editYoutubeUrl" name="youtubeUrl" placeholder="YouTube URL">
+                            <input type="url" id="editOtherUrl" name="otherUrl" placeholder="Other URL">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">update release</button>
+                            <button type="button" class="btn-secondary" onclick="hideEditForm()">cancel</button>
+                            <button type="button" class="btn-danger" onclick="deleteRelease()">delete</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="emptyState" class="empty-state">
+                    <p>select a release to edit or add a new one</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-content" id="artistsTab" style="display: none;">
+            <div class="admin-sidebar">
+                <button class="btn-primary" onclick="showAddArtistForm()">+ add artist</button>
+                <div class="artists-list" id="artistsList"></div>
+            </div>
+
+            <div class="admin-main">
+                <div id="addArtistForm" class="form-container" style="display: none;">
+                    <h2>add new artist</h2>
+                    <form id="artistForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="artistName">name</label>
+                            <input type="text" id="artistName" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="artistBio">bio</label>
+                            <textarea id="artistBio" name="bio" rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="artistImage">image</label>
+                            <input type="file" id="artistImage" name="image" accept="image/*">
+                            <small>or paste image URL</small>
+                            <input type="text" id="artistImageUrl" name="imageUrl" placeholder="https://...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>links</label>
+                            <input type="url" id="artistWebsiteUrl" name="websiteUrl" placeholder="Website URL">
+                            <input type="url" id="artistInstagramUrl" name="instagramUrl" placeholder="Instagram URL">
+                            <input type="url" id="artistSoundcloudUrl" name="soundcloudUrl" placeholder="SoundCloud URL">
+                            <input type="url" id="artistSpotifyUrl" name="spotifyUrl" placeholder="Spotify URL">
+                            <input type="url" id="artistBandcampUrl" name="bandcampUrl" placeholder="Bandcamp URL">
+                            <input type="url" id="artistOtherUrl" name="otherUrl" placeholder="Other URL">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">save artist</button>
+                            <button type="button" class="btn-secondary" onclick="hideArtistForm()">cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="editArtistForm" class="form-container" style="display: none;">
+                    <h2>edit artist</h2>
+                    <form id="editArtistFormElement" enctype="multipart/form-data">
+                        <input type="hidden" id="editArtistId" name="id">
+                        
+                        <div class="form-group">
+                            <label for="editArtistName">name</label>
+                            <input type="text" id="editArtistName" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editArtistBio">bio</label>
+                            <textarea id="editArtistBio" name="bio" rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editArtistImageFile">image</label>
+                            <input type="file" id="editArtistImageFile" name="image" accept="image/*">
+                            <small>or paste image URL</small>
+                            <input type="text" id="editArtistImageUrl" name="imageUrl" placeholder="https://...">
+                            <div id="currentArtistImagePreview" class="image-preview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>links</label>
+                            <input type="url" id="editArtistWebsiteUrl" name="websiteUrl" placeholder="Website URL">
+                            <input type="url" id="editArtistInstagramUrl" name="instagramUrl" placeholder="Instagram URL">
+                            <input type="url" id="editArtistSoundcloudUrl" name="soundcloudUrl" placeholder="SoundCloud URL">
+                            <input type="url" id="editArtistSpotifyUrl" name="spotifyUrl" placeholder="Spotify URL">
+                            <input type="url" id="editArtistBandcampUrl" name="bandcampUrl" placeholder="Bandcamp URL">
+                            <input type="url" id="editArtistOtherUrl" name="otherUrl" placeholder="Other URL">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">update artist</button>
+                            <button type="button" class="btn-secondary" onclick="hideEditArtistForm()">cancel</button>
+                            <button type="button" class="btn-danger" onclick="deleteArtist()">delete</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="emptyArtistState" class="empty-state">
+                    <p>select an artist to edit or add a new one</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
+
