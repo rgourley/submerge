@@ -11,18 +11,25 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
-app.use('/uploads', express.static('uploads'));
+// Serve uploads - handle both local and Vercel paths
+app.use('/uploads', express.static(uploadsDir));
+app.use('/tmp/uploads', express.static(uploadsDir));
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'uploads');
+// Ensure uploads directory exists (use /tmp on Vercel)
+const isVercel = process.env.VERCEL === '1';
+const uploadsDir = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+    try {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    } catch (error) {
+        console.error('Error creating uploads directory:', error);
+    }
 }
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadsDir);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -47,22 +54,34 @@ const upload = multer({
     }
 });
 
-// Data file paths
-const releasesFile = path.join(__dirname, 'data', 'releases.json');
-const artistsFile = path.join(__dirname, 'data', 'artists.json');
+// Data file paths (use /tmp on Vercel)
+const dataDir = isVercel ? path.join('/tmp', 'data') : path.join(__dirname, 'data');
+const releasesFile = path.join(dataDir, 'releases.json');
+const artistsFile = path.join(dataDir, 'artists.json');
 
 // Ensure data directory exists
-const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+    try {
+        fs.mkdirSync(dataDir, { recursive: true });
+    } catch (error) {
+        console.error('Error creating data directory:', error);
+    }
 }
 
 // Initialize data files if they don't exist
 if (!fs.existsSync(releasesFile)) {
-    fs.writeFileSync(releasesFile, JSON.stringify([], null, 2));
+    try {
+        fs.writeFileSync(releasesFile, JSON.stringify([], null, 2));
+    } catch (error) {
+        console.error('Error creating releases file:', error);
+    }
 }
 if (!fs.existsSync(artistsFile)) {
-    fs.writeFileSync(artistsFile, JSON.stringify([], null, 2));
+    try {
+        fs.writeFileSync(artistsFile, JSON.stringify([], null, 2));
+    } catch (error) {
+        console.error('Error creating artists file:', error);
+    }
 }
 
 // Helper functions for releases
@@ -136,7 +155,7 @@ app.post('/api/releases', upload.single('image'), (req, res) => {
         artistId: req.body.artistId || '',
         title: req.body.title || '',
         date: req.body.date || new Date().getFullYear().toString(),
-        image: req.file ? `/uploads/${req.file.filename}` : req.body.image || '',
+        image: req.file ? (isVercel ? `/tmp/uploads/${req.file.filename}` : `/uploads/${req.file.filename}`) : req.body.image || '',
         spotifyUrl: req.body.spotifyUrl || '',
         soundcloudUrl: req.body.soundcloudUrl || '',
         bandcampUrl: req.body.bandcampUrl || '',
@@ -180,13 +199,19 @@ app.put('/api/releases/:id', upload.single('image'), (req, res) => {
     // Update image if new one uploaded
     if (req.file) {
         // Delete old image if it exists
-        if (release.image && release.image.startsWith('/uploads/')) {
-            const oldImagePath = path.join(__dirname, release.image);
+        if (release.image && (release.image.startsWith('/uploads/') || release.image.startsWith('/tmp/uploads/'))) {
+            const oldImagePath = release.image.startsWith('/tmp/') 
+                ? release.image 
+                : path.join(__dirname, release.image);
             if (fs.existsSync(oldImagePath)) {
-                fs.unlinkSync(oldImagePath);
+                try {
+                    fs.unlinkSync(oldImagePath);
+                } catch (error) {
+                    console.error('Error deleting old image:', error);
+                }
             }
         }
-        release.image = `/uploads/${req.file.filename}`;
+        release.image = isVercel ? `/tmp/uploads/${req.file.filename}` : `/uploads/${req.file.filename}`;
     } else if (req.body.image) {
         release.image = req.body.image;
     }
@@ -211,13 +236,19 @@ app.delete('/api/releases/:id', (req, res) => {
     
     const release = releases[index];
     
-    // Delete associated image
-    if (release.image && release.image.startsWith('/uploads/')) {
-        const imagePath = path.join(__dirname, release.image);
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
+        // Delete associated image
+        if (release.image && (release.image.startsWith('/uploads/') || release.image.startsWith('/tmp/uploads/'))) {
+            const imagePath = release.image.startsWith('/tmp/') 
+                ? release.image 
+                : path.join(__dirname, release.image);
+            if (fs.existsSync(imagePath)) {
+                try {
+                    fs.unlinkSync(imagePath);
+                } catch (error) {
+                    console.error('Error deleting image:', error);
+                }
+            }
         }
-    }
     
     releases.splice(index, 1);
     
@@ -271,7 +302,7 @@ app.post('/api/artists', upload.single('image'), (req, res) => {
         id: Date.now().toString(),
         name: req.body.name || '',
         bio: req.body.bio || '',
-        image: req.file ? `/uploads/${req.file.filename}` : req.body.image || '',
+        image: req.file ? (isVercel ? `/tmp/uploads/${req.file.filename}` : `/uploads/${req.file.filename}`) : req.body.image || '',
         websiteUrl: req.body.websiteUrl || '',
         instagramUrl: req.body.instagramUrl || '',
         soundcloudUrl: req.body.soundcloudUrl || '',
@@ -314,13 +345,19 @@ app.put('/api/artists/:id', upload.single('image'), (req, res) => {
     // Update image if new one uploaded
     if (req.file) {
         // Delete old image if it exists
-        if (artist.image && artist.image.startsWith('/uploads/')) {
-            const oldImagePath = path.join(__dirname, artist.image);
+        if (artist.image && (artist.image.startsWith('/uploads/') || artist.image.startsWith('/tmp/uploads/'))) {
+            const oldImagePath = artist.image.startsWith('/tmp/') 
+                ? artist.image 
+                : path.join(__dirname, artist.image);
             if (fs.existsSync(oldImagePath)) {
-                fs.unlinkSync(oldImagePath);
+                try {
+                    fs.unlinkSync(oldImagePath);
+                } catch (error) {
+                    console.error('Error deleting old image:', error);
+                }
             }
         }
-        artist.image = `/uploads/${req.file.filename}`;
+        artist.image = isVercel ? `/tmp/uploads/${req.file.filename}` : `/uploads/${req.file.filename}`;
     } else if (req.body.image) {
         artist.image = req.body.image;
     }
@@ -355,10 +392,16 @@ app.delete('/api/artists/:id', (req, res) => {
     }
     
     // Delete associated image
-    if (artist.image && artist.image.startsWith('/uploads/')) {
-        const imagePath = path.join(__dirname, artist.image);
+    if (artist.image && (artist.image.startsWith('/uploads/') || artist.image.startsWith('/tmp/uploads/'))) {
+        const imagePath = artist.image.startsWith('/tmp/') 
+            ? artist.image 
+            : path.join(__dirname, artist.image);
         if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
+            try {
+                fs.unlinkSync(imagePath);
+            } catch (error) {
+                console.error('Error deleting image:', error);
+            }
         }
     }
     
@@ -371,9 +414,14 @@ app.delete('/api/artists/:id', (req, res) => {
     }
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Admin panel: http://localhost:${PORT}/admin`);
-});
+// Export for Vercel serverless
+module.exports = app;
+
+// Start server only if not in Vercel environment
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`Admin panel: http://localhost:${PORT}/admin`);
+    });
+}
 
