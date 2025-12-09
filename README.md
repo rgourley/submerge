@@ -61,6 +61,41 @@ Releases are stored in `data/releases.json`. Images are stored in the `uploads/`
 
 **Note:** Make sure to backup these files if you're deploying to production!
 
+## Deployment to Vercel
+
+The project is configured for Vercel deployment. However, **important limitations**:
+
+⚠️ **Vercel uses serverless functions with a read-only filesystem**. This means:
+- File uploads won't persist (they'll be lost between deployments)
+- JSON data files won't persist
+- You'll need to use a database (MongoDB, PostgreSQL, etc.) and cloud storage (AWS S3, Cloudinary, Vercel Blob) for production
+
+### To deploy to Vercel:
+
+1. Install Vercel CLI (if not already installed):
+   ```bash
+   npm i -g vercel
+   ```
+
+2. Login to Vercel:
+   ```bash
+   vercel login
+   ```
+
+3. Deploy:
+   ```bash
+   vercel
+   ```
+
+4. For production deployment:
+   ```bash
+   vercel --prod
+   ```
+
+The `vercel.json` configuration file is already set up. For production use, consider migrating to:
+- **Database**: MongoDB Atlas, Supabase, or Vercel Postgres
+- **File Storage**: Vercel Blob Storage, Cloudinary, or AWS S3
+
 ## Customization
 
 - Add your releases in `releases.js` (see examples above)
