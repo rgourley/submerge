@@ -240,12 +240,26 @@ async function uploadImage(file, filename) {
 app.get('/api/releases', async (req, res) => {
     try {
         console.log('GET /api/releases - Fetching releases...');
+        
+        // Check database connection
+        if (!connectionString) {
+            console.error('No database connection string');
+            return res.status(500).json({ 
+                error: 'Database not configured', 
+                message: 'POSTGRES_URL environment variable is not set' 
+            });
+        }
+        
         const releases = await getReleases();
         console.log(`Found ${releases.length} releases`);
         res.json(releases);
     } catch (error) {
         console.error('Error getting releases:', error);
-        res.status(500).json({ error: 'Failed to get releases', details: error.message });
+        res.status(500).json({ 
+            error: 'Failed to get releases', 
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
@@ -357,12 +371,26 @@ app.delete('/api/releases/:id', async (req, res) => {
 app.get('/api/artists', async (req, res) => {
     try {
         console.log('GET /api/artists - Fetching artists...');
+        
+        // Check database connection
+        if (!connectionString) {
+            console.error('No database connection string');
+            return res.status(500).json({ 
+                error: 'Database not configured', 
+                message: 'POSTGRES_URL environment variable is not set' 
+            });
+        }
+        
         const artists = await getArtists();
         console.log(`Found ${artists.length} artists`);
         res.json(artists);
     } catch (error) {
         console.error('Error getting artists:', error);
-        res.status(500).json({ error: 'Failed to get artists', details: error.message });
+        res.status(500).json({ 
+            error: 'Failed to get artists', 
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
