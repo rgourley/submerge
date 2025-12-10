@@ -309,6 +309,26 @@ section {
 }
 
 /* About */
+/* Playlist */
+.playlist {
+    padding: 8rem 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.playlist-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.playlist-container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.playlist-container iframe {
+    background-color: #1a1a1a;
+}
+
 .about {
     padding: 12rem 2rem;
 }
