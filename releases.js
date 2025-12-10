@@ -119,11 +119,13 @@ function openReleaseModal(release) {
         }
     }
     
+    const artistName = getArtistName(release.artistId);
+    
     modal.innerHTML = `
         <div class="release-modal-content">
             <button class="release-modal-close">&times;</button>
             <div class="release-modal-header">
-                <h3 class="release-modal-artist">${release.artist || 'Unknown Artist'}</h3>
+                <h3 class="release-modal-artist">${artistName}</h3>
                 <h2 class="release-modal-title">${release.title || 'Untitled'}</h2>
                 <p class="release-modal-date">${release.date || ''}</p>
             </div>
