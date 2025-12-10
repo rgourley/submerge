@@ -81,6 +81,7 @@ function createReleaseCard(release) {
     // Add click handler to navigate to release page (use slug if available, fallback to ID)
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
+        // Always prefer slug for SEO, but fallback to ID if slug doesn't exist
         const url = release.slug ? `/release/${release.slug}` : `/release/${release.id}`;
         window.location.href = url;
     });
