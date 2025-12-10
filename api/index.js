@@ -467,11 +467,6 @@ app.get('/artist/:id', (req, res) => {
     res.sendFile(path.join(__dirname, '../artist.html'));
 });
 
-// Serve main page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../index.html'));
-});
-
 // Export for Vercel serverless
 module.exports = app;
 
