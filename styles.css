@@ -801,6 +801,158 @@ section {
     }
 }
 
+/* Release Page Styles */
+.release-page {
+    min-height: 100vh;
+    padding: 6rem 2rem 4rem;
+}
+
+.release-page-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.release-page-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+}
+
+.release-page-header {
+    position: relative;
+    min-height: 600px;
+    width: 100%;
+}
+
+.release-page-image {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 500px;
+    height: 500px;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+    z-index: 1;
+}
+
+.release-page-image + .image-placeholder {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 500px;
+    height: 500px;
+    z-index: 1;
+}
+
+.release-page-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: relative;
+    z-index: 2;
+    width: auto;
+    max-width: 60%;
+}
+
+.release-page-artist {
+    font-size: 0.875rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.release-page-artist-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.release-page-artist-link:hover {
+    color: var(--text-color);
+}
+
+.release-page-title {
+    font-size: clamp(10rem, 25vw, 24rem);
+    font-weight: 100;
+    letter-spacing: -0.02em;
+    text-transform: lowercase;
+    line-height: 0.85;
+}
+
+.release-page-date {
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: var(--accent-color);
+    text-transform: lowercase;
+}
+
+.release-page-description {
+    font-size: 0.875rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--accent-color);
+    max-width: 600px;
+    margin-top: 1rem;
+}
+
+.release-page-streaming-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.release-page-streaming-links .streaming-link {
+    font-size: 0.75rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    color: var(--accent-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.release-page-streaming-links .streaming-link:hover {
+    border-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+.release-page-preview {
+    margin-top: 4rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+.release-page-preview iframe {
+    width: 100%;
+    border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+    .release-page-header {
+        flex-direction: column;
+        min-height: auto;
+    }
+    
+    .release-page-image {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+        height: 300px;
+        margin: 0 auto 2rem;
+    }
+    
+    .release-page-info {
+        max-width: 100%;
+        padding-right: 0;
+    }
+}
+
 .artist-modal-image {
     margin: 2rem 0;
     text-align: center;

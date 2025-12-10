@@ -329,6 +329,7 @@ function editRelease(release) {
     document.getElementById('editArtistId').value = release.artistId || '';
     document.getElementById('editTitle').value = release.title || '';
     document.getElementById('editDate').value = release.date || '';
+    document.getElementById('editDescription').value = release.description || '';
     document.getElementById('editSpotifyUrl').value = release.spotifyUrl || '';
     document.getElementById('editSoundcloudUrl').value = release.soundcloudUrl || '';
     document.getElementById('editBandcampUrl').value = release.bandcampUrl || '';
@@ -367,6 +368,7 @@ document.getElementById('releaseForm').addEventListener('submit', async (e) => {
     formData.append('artistId', document.getElementById('artistId').value);
     formData.append('title', document.getElementById('title').value);
     formData.append('date', document.getElementById('date').value);
+    formData.append('description', document.getElementById('description').value);
     
     const imageFile = document.getElementById('image').files[0];
     if (imageFile) {
@@ -413,6 +415,7 @@ document.getElementById('editReleaseForm').addEventListener('submit', async (e) 
     formData.append('artistId', document.getElementById('editArtistId').value);
     formData.append('title', document.getElementById('editTitle').value);
     formData.append('date', document.getElementById('editDate').value);
+    formData.append('description', document.getElementById('editDescription').value);
     
     const imageFile = document.getElementById('editImage').files[0];
     if (imageFile) {

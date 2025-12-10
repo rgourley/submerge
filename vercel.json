@@ -11,6 +11,10 @@
     {
       "source": "/artist/(.*)",
       "destination": "/api/index.js"
+    },
+    {
+      "source": "/release/(.*)",
+      "destination": "/api/index.js"
     }
   ],
   "headers": [

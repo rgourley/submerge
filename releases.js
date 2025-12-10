@@ -78,10 +78,11 @@ function createReleaseCard(release) {
         </div>
     `;
     
-    // Add click handler to show release modal with streaming links
+    // Add click handler to navigate to release page (use slug if available, fallback to ID)
     card.style.cursor = 'pointer';
-    card.addEventListener('click', async () => {
-        await openReleaseModal(release);
+    card.addEventListener('click', () => {
+        const url = release.slug ? `/release/${release.slug}` : `/release/${release.id}`;
+        window.location.href = url;
     });
     
     return card;

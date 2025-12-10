@@ -39,8 +39,10 @@ async function initDB() {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS releases (
                 id TEXT PRIMARY KEY,
+                slug TEXT UNIQUE,
                 "artistId" TEXT,
                 title TEXT,
+                description TEXT,
                 date TEXT,
                 image TEXT,
                 "spotifyUrl" TEXT,
@@ -53,6 +55,14 @@ async function initDB() {
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP
             )
+        `);
+        
+        // Add slug and description columns if they don't exist (for existing databases)
+        await pool.query(`
+            ALTER TABLE releases ADD COLUMN IF NOT EXISTS slug TEXT UNIQUE
+        `);
+        await pool.query(`
+            ALTER TABLE releases ADD COLUMN IF NOT EXISTS description TEXT
         `);
         
         // Add tidalUrl column if it doesn't exist (for existing databases)
@@ -121,15 +131,56 @@ async function getReleases() {
     }
 }
 
+// Generate SEO-friendly slug from title
+function generateReleaseSlug(title) {
+    if (!title) return '';
+    return title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+}
+
+// Ensure unique release slug
+async function ensureUniqueReleaseSlug(slug, excludeId = null) {
+    let uniqueSlug = slug;
+    let counter = 1;
+    
+    while (true) {
+        const query = excludeId 
+            ? 'SELECT id FROM releases WHERE slug = $1 AND id != $2'
+            : 'SELECT id FROM releases WHERE slug = $1';
+        const params = excludeId ? [uniqueSlug, excludeId] : [uniqueSlug];
+        const result = await pool.query(query, params);
+        
+        if (result.rows.length === 0) {
+            return uniqueSlug;
+        }
+        
+        uniqueSlug = `${slug}-${counter}`;
+        counter++;
+    }
+}
+
 async function saveRelease(release) {
     try {
+        // Generate or use existing slug
+        let slug = release.slug || generateReleaseSlug(release.title);
+        if (slug) {
+            slug = await ensureUniqueReleaseSlug(slug, release.id);
+        }
+        
         const query = `
-            INSERT INTO releases (id, "artistId", title, date, image, "spotifyUrl", "soundcloudUrl", "bandcampUrl", "appleMusicUrl", "youtubeUrl", "tidalUrl", "otherUrl", "createdAt")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            INSERT INTO releases (id, slug, "artistId", title, description, date, image, "spotifyUrl", "soundcloudUrl", "bandcampUrl", "appleMusicUrl", "youtubeUrl", "tidalUrl", "otherUrl", "createdAt")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
             ON CONFLICT (id) 
             DO UPDATE SET 
+                slug = EXCLUDED.slug,
                 "artistId" = EXCLUDED."artistId",
                 title = EXCLUDED.title,
+                description = EXCLUDED.description,
                 date = EXCLUDED.date,
                 image = EXCLUDED.image,
                 "spotifyUrl" = EXCLUDED."spotifyUrl",
@@ -143,8 +194,10 @@ async function saveRelease(release) {
         `;
         await pool.query(query, [
             release.id,
+            slug,
             release.artistId || '',
             release.title || '',
+            release.description || '',
             release.date || '',
             release.image || '',
             release.spotifyUrl || '',
@@ -156,6 +209,9 @@ async function saveRelease(release) {
             release.otherUrl || '',
             release.createdAt || new Date()
         ]);
+        
+        // Return release with slug
+        release.slug = slug;
         return release;
     } catch (error) {
         console.error('Error saving release:', error);
@@ -321,10 +377,16 @@ app.get('/api/releases', async (req, res) => {
     }
 });
 
-// Get single release
-app.get('/api/releases/:id', async (req, res) => {
+// Get single release (by ID or slug)
+app.get('/api/releases/:identifier', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM releases WHERE id = $1', [req.params.id]);
+        const identifier = req.params.identifier;
+        // Try to find by slug first, then by ID
+        let result = await pool.query('SELECT * FROM releases WHERE slug = $1', [identifier]);
+        if (result.rows.length === 0) {
+            result = await pool.query('SELECT * FROM releases WHERE id = $1', [identifier]);
+        }
+        
         const release = result.rows[0];
         
         if (!release) {
@@ -353,6 +415,7 @@ app.post('/api/releases', upload.single('image'), async (req, res) => {
             id: Date.now().toString(),
             artistId: req.body.artistId || '',
             title: req.body.title || '',
+            description: req.body.description || '',
             date: req.body.date || new Date().getFullYear().toString(),
             image: imageUrl,
             spotifyUrl: req.body.spotifyUrl || '',
@@ -582,6 +645,11 @@ app.get('/admin', (req, res) => {
 // Serve artist page (by slug or ID)
 app.get('/artist/:identifier', (req, res) => {
     res.sendFile(path.join(__dirname, '../artist.html'));
+});
+
+// Serve release page (by slug or ID)
+app.get('/release/:identifier', (req, res) => {
+    res.sendFile(path.join(__dirname, '../release.html'));
 });
 
 // Export for Vercel serverless
