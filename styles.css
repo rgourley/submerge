@@ -309,26 +309,26 @@ section {
 }
 
 /* About */
-/* Spotify Player - Fixed to Bottom */
-.spotify-player-fixed {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 80px;
-    background-color: #0a0a0a;
+/* Playlist */
+.playlist {
+    padding: 8rem 2rem;
     border-top: 1px solid var(--border-color);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
 }
 
-.spotify-player-fixed iframe {
+.playlist-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.playlist-container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.playlist-container iframe {
+    background-color: #1a1a1a;
     width: 100%;
-    height: 80px;
-    border: none;
 }
 
 .about {
@@ -365,7 +365,6 @@ section {
 /* Contact */
 .contact {
     padding: 8rem 2rem;
-    padding-bottom: 12rem; /* Extra padding for fixed player */
     border-top: 1px solid var(--border-color);
 }
 
@@ -423,7 +422,6 @@ section {
 /* Footer */
 .footer {
     padding: 3rem 2rem;
-    padding-bottom: 6rem; /* Extra padding for fixed player */
     text-align: center;
     border-top: 1px solid var(--border-color);
 }
