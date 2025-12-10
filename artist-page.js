@@ -41,7 +41,7 @@ async function loadArtistPage() {
         
         // Find all releases by this artist, sorted by date (newest first)
         const artistReleases = releases
-            .filter(r => r.artistId === artistId)
+            .filter(r => r.artistId === artist.id)
             .sort((a, b) => {
                 const dateA = parseInt(a.date) || 0;
                 const dateB = parseInt(b.date) || 0;
