@@ -1,45 +1,20 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "server-neon.js",
-      "use": "@vercel/node"
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/admin",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/artist/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api/index.js"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server-neon.js"
-    },
-    {
-      "src": "/admin",
-      "dest": "server-neon.js"
-    },
-    {
-      "src": "/artist/(.*)",
-      "dest": "server-neon.js"
-    },
-    {
-      "src": "/styles\\.css",
-      "dest": "/styles.css"
-    },
-    {
-      "src": "/admin-styles\\.css",
-      "dest": "/admin-styles.css"
-    },
-    {
-      "src": "/(.*\\.(css|js|svg|jpg|jpeg|png|gif|webp|ico|woff|woff2|ttf|eot|html))",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "server-neon.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
-
