@@ -423,6 +423,7 @@ section {
 /* Footer */
 .footer {
     padding: 3rem 2rem;
+    padding-bottom: 6rem; /* Extra padding for fixed player */
     text-align: center;
     border-top: 1px solid var(--border-color);
 }
