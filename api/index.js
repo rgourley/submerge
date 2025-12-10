@@ -58,6 +58,7 @@ async function initDB() {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS artists (
                 id TEXT PRIMARY KEY,
+                slug TEXT UNIQUE,
                 name TEXT,
                 bio TEXT,
                 image TEXT,
@@ -70,6 +71,11 @@ async function initDB() {
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP
             )
+        `);
+        
+        // Add slug column if it doesn't exist (for existing databases)
+        await pool.query(`
+            ALTER TABLE artists ADD COLUMN IF NOT EXISTS slug TEXT UNIQUE
         `);
         
         console.log('Database initialized');
@@ -170,13 +176,53 @@ async function getArtists() {
     }
 }
 
+// Generate SEO-friendly slug from name
+function generateSlug(name) {
+    if (!name) return '';
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+}
+
+// Ensure unique slug
+async function ensureUniqueSlug(slug, excludeId = null) {
+    let uniqueSlug = slug;
+    let counter = 1;
+    
+    while (true) {
+        const query = excludeId 
+            ? 'SELECT id FROM artists WHERE slug = $1 AND id != $2'
+            : 'SELECT id FROM artists WHERE slug = $1';
+        const params = excludeId ? [uniqueSlug, excludeId] : [uniqueSlug];
+        const result = await pool.query(query, params);
+        
+        if (result.rows.length === 0) {
+            return uniqueSlug;
+        }
+        
+        uniqueSlug = `${slug}-${counter}`;
+        counter++;
+    }
+}
+
 async function saveArtist(artist) {
     try {
+        // Generate or use existing slug
+        let slug = artist.slug || generateSlug(artist.name);
+        if (slug) {
+            slug = await ensureUniqueSlug(slug, artist.id);
+        }
+        
         const query = `
-            INSERT INTO artists (id, name, bio, image, "websiteUrl", "instagramUrl", "soundcloudUrl", "spotifyUrl", "bandcampUrl", "otherUrl", "createdAt")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            INSERT INTO artists (id, slug, name, bio, image, "websiteUrl", "instagramUrl", "soundcloudUrl", "spotifyUrl", "bandcampUrl", "otherUrl", "createdAt")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             ON CONFLICT (id) 
             DO UPDATE SET 
+                slug = EXCLUDED.slug,
                 name = EXCLUDED.name,
                 bio = EXCLUDED.bio,
                 image = EXCLUDED.image,
@@ -190,6 +236,7 @@ async function saveArtist(artist) {
         `;
         await pool.query(query, [
             artist.id,
+            slug,
             artist.name || '',
             artist.bio || '',
             artist.image || '',
@@ -201,6 +248,9 @@ async function saveArtist(artist) {
             artist.otherUrl || '',
             artist.createdAt || new Date()
         ]);
+        
+        // Return artist with slug
+        artist.slug = slug;
         return artist;
     } catch (error) {
         console.error('Error saving artist:', error);
@@ -394,10 +444,16 @@ app.get('/api/artists', async (req, res) => {
     }
 });
 
-// Get single artist
-app.get('/api/artists/:id', async (req, res) => {
+// Get single artist (by ID or slug)
+app.get('/api/artists/:identifier', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM artists WHERE id = $1', [req.params.id]);
+        const identifier = req.params.identifier;
+        // Try to find by slug first, then by ID
+        let result = await pool.query('SELECT * FROM artists WHERE slug = $1', [identifier]);
+        if (result.rows.length === 0) {
+            result = await pool.query('SELECT * FROM artists WHERE id = $1', [identifier]);
+        }
+        
         const artist = result.rows[0];
         
         if (!artist) {
@@ -472,6 +528,11 @@ app.put('/api/artists/:id', upload.single('image'), async (req, res) => {
         artist.bandcampUrl = req.body.bandcampUrl || artist.bandcampUrl;
         artist.otherUrl = req.body.otherUrl || artist.otherUrl;
         
+        // Regenerate slug if name changed
+        if (req.body.name && req.body.name !== artist.name) {
+            artist.slug = null; // Will be regenerated in saveArtist
+        }
+        
         await saveArtist(artist);
         res.json(artist);
     } catch (error) {
@@ -509,8 +570,8 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '../admin.html'));
 });
 
-// Serve artist page
-app.get('/artist/:id', (req, res) => {
+// Serve artist page (by slug or ID)
+app.get('/artist/:identifier', (req, res) => {
     res.sendFile(path.join(__dirname, '../artist.html'));
 });
 

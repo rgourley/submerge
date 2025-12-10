@@ -70,10 +70,11 @@ function createArtistCard(artist) {
         <p class="artist-name">${artist.name || 'Unknown Artist'}</p>
     `;
     
-    // Add click handler to navigate to artist page
+    // Add click handler to navigate to artist page (use slug if available, fallback to ID)
     card.style.cursor = 'pointer';
     card.addEventListener('click', () => {
-        window.location.href = `/artist/${artist.id}`;
+        const url = artist.slug ? `/artist/${artist.slug}` : `/artist/${artist.id}`;
+        window.location.href = url;
     });
     
     return card;

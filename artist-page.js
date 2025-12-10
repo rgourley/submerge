@@ -2,8 +2,8 @@
 (function() {
 'use strict';
 
-// Get artist ID from URL
-function getArtistId() {
+// Get artist identifier (slug or ID) from URL
+function getArtistIdentifier() {
     const path = window.location.pathname;
     const match = path.match(/\/artist\/([^\/]+)/);
     return match ? match[1] : null;
@@ -11,18 +11,18 @@ function getArtistId() {
 
 // Load artist data
 async function loadArtistPage() {
-    const artistId = getArtistId();
-    console.log('Artist ID:', artistId);
+    const identifier = getArtistIdentifier();
+    console.log('Artist identifier:', identifier);
     
-    if (!artistId) {
+    if (!identifier) {
         showError('Artist not found');
         return;
     }
 
     try {
         console.log('Fetching artist data...');
-        // Load artist data
-        const artistResponse = await fetch(`/api/artists/${artistId}`);
+        // Load artist data (works with both slug and ID)
+        const artistResponse = await fetch(`/api/artists/${identifier}`);
         console.log('Artist response status:', artistResponse.status);
         
         if (!artistResponse.ok) {
@@ -61,7 +61,7 @@ async function loadArtistPage() {
 // Update meta tags for SEO and social sharing
 function updateMetaTags(artist) {
     const baseUrl = window.location.origin;
-    const pageUrl = `${baseUrl}/artist/${artist.id}`;
+    const pageUrl = artist.slug ? `${baseUrl}/artist/${artist.slug}` : `${baseUrl}/artist/${artist.id}`;
     const description = artist.bio ? artist.bio.substring(0, 160) : `${artist.name} on submerge music label`;
     const title = `${artist.name} - submerge`;
     
