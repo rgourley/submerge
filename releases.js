@@ -80,14 +80,19 @@ function createReleaseCard(release) {
     
     // Add click handler to show release modal with streaming links
     card.style.cursor = 'pointer';
-    card.addEventListener('click', () => {
-        openReleaseModal(release);
+    card.addEventListener('click', async () => {
+        await openReleaseModal(release);
     });
     
     return card;
 }
 
-function openReleaseModal(release) {
+async function openReleaseModal(release) {
+    // Ensure artists are loaded
+    if (artists.length === 0) {
+        await loadArtists();
+    }
+    
     // Create modal overlay
     const modal = document.createElement('div');
     modal.className = 'release-modal';
@@ -108,16 +113,16 @@ function openReleaseModal(release) {
            </div>`
         : '';
     
-    // Create embed if SoundCloud or Spotify
+    // Create embed - prefer Spotify, fallback to SoundCloud
     let embedHTML = '';
-    if (release.soundcloudUrl) {
-        embedHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(release.soundcloudUrl)}&color=%23888888&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>`;
-    } else if (release.spotifyUrl) {
+    if (release.spotifyUrl) {
         const spotifyId = extractSpotifyId(release.spotifyUrl);
         if (spotifyId) {
             const type = release.spotifyUrl.includes('/album/') ? 'album' : 'track';
-            embedHTML = `<iframe style="border-radius:12px" src="https://open.spotify.com/embed/${type}/${spotifyId}?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+            embedHTML = `<iframe style="border-radius:12px" src="https://open.spotify.com/embed/${type}/${spotifyId}?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
         }
+    } else if (release.soundcloudUrl) {
+        embedHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(release.soundcloudUrl)}&color=%23888888&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>`;
     }
     
     const artistName = getArtistName(release.artistId);
