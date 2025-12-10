@@ -183,7 +183,7 @@ function renderArtistPage(artist, artistReleases) {
         <section class="artist-page-section">
             <div class="artist-page-content">
                 <div class="artist-page-header">
-                    <a href="/#artists" class="back-link">← back to artists</a>
+                    <a href="/" class="back-link" onclick="event.preventDefault(); window.location.href='/#artists'; return false;">← back to artists</a>
                     ${imageHTML}
                     <div class="artist-page-info">
                         <h1 class="artist-page-name">${artist.name}</h1>
@@ -208,7 +208,7 @@ function showError(message) {
         container.innerHTML = `
             <div class="error-message">
                 <p>${message}</p>
-                <a href="/#artists" class="back-link">← back to artists</a>
+                <a href="/" class="back-link" onclick="event.preventDefault(); window.location.href='/#artists'; return false;">← back to artists</a>
             </div>
         `;
     } else {
