@@ -457,12 +457,14 @@ app.put('/api/releases/:id', upload.single('image'), async (req, res) => {
         // Update fields
         release.artistId = req.body.artistId !== undefined ? req.body.artistId : release.artistId;
         release.title = req.body.title || release.title;
+        release.description = req.body.description !== undefined ? req.body.description : release.description;
         release.date = req.body.date || release.date;
         release.spotifyUrl = req.body.spotifyUrl || release.spotifyUrl;
         release.soundcloudUrl = req.body.soundcloudUrl || release.soundcloudUrl;
         release.bandcampUrl = req.body.bandcampUrl || release.bandcampUrl;
         release.appleMusicUrl = req.body.appleMusicUrl || release.appleMusicUrl;
         release.youtubeUrl = req.body.youtubeUrl || release.youtubeUrl;
+        release.tidalUrl = req.body.tidalUrl !== undefined ? req.body.tidalUrl : release.tidalUrl;
         release.otherUrl = req.body.otherUrl || release.otherUrl;
         
         await saveRelease(release);
