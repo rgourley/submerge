@@ -12,5 +12,16 @@
       "source": "/artist/(.*)",
       "destination": "/api/index.js"
     }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
   ]
 }

@@ -12,9 +12,24 @@ app.use(cors());
 app.use(express.json());
 
 // Neon Postgres connection
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+if (!connectionString) {
+    console.error('WARNING: No database connection string found. Set POSTGRES_URL or DATABASE_URL environment variable.');
+}
+
 const pool = new Pool({
-    connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+    connectionString: connectionString,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+// Test connection
+pool.on('connect', () => {
+    console.log('✓ Connected to Neon Postgres database');
+});
+
+pool.on('error', (err) => {
+    console.error('✗ Database connection error:', err);
 });
 
 // Initialize database tables
@@ -224,11 +239,13 @@ async function uploadImage(file, filename) {
 // Get all releases
 app.get('/api/releases', async (req, res) => {
     try {
+        console.log('GET /api/releases - Fetching releases...');
         const releases = await getReleases();
+        console.log(`Found ${releases.length} releases`);
         res.json(releases);
     } catch (error) {
         console.error('Error getting releases:', error);
-        res.status(500).json({ error: 'Failed to get releases' });
+        res.status(500).json({ error: 'Failed to get releases', details: error.message });
     }
 });
 
@@ -339,11 +356,13 @@ app.delete('/api/releases/:id', async (req, res) => {
 // Get all artists
 app.get('/api/artists', async (req, res) => {
     try {
+        console.log('GET /api/artists - Fetching artists...');
         const artists = await getArtists();
+        console.log(`Found ${artists.length} artists`);
         res.json(artists);
     } catch (error) {
         console.error('Error getting artists:', error);
-        res.status(500).json({ error: 'Failed to get artists' });
+        res.status(500).json({ error: 'Failed to get artists', details: error.message });
     }
 });
 
