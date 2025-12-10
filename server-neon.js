@@ -4,6 +4,7 @@ const { put } = require('@vercel/blob');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +12,44 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files explicitly for Vercel
+const mimeTypes = {
+    '.css': 'text/css',
+    '.js': 'application/javascript',
+    '.svg': 'image/svg+xml',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.ico': 'image/x-icon',
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
+    '.eot': 'application/vnd.ms-fontobject'
+};
+
+// Serve static files
+app.get('*', (req, res, next) => {
+    const ext = path.extname(req.path).toLowerCase();
+    if (mimeTypes[ext] && !req.path.startsWith('/api') && !req.path.startsWith('/admin') && req.path !== '/') {
+        const filePath = path.join(__dirname, req.path);
+        try {
+            if (fs.existsSync(filePath)) {
+                res.setHeader('Content-Type', mimeTypes[ext]);
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                res.sendFile(filePath);
+                return;
+            }
+        } catch (error) {
+            // Continue to next middleware if file doesn't exist
+        }
+    }
+    next();
+});
+
+// Fallback to express.static for other files
 app.use(express.static(__dirname));
 
 // Neon Postgres connection
