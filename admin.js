@@ -293,7 +293,10 @@ function displayReleases(releasesList) {
             <div class="release-item-title">${release.title}</div>
             <div class="release-item-artist">${artistName}</div>
         `;
-        item.addEventListener('click', () => editRelease(release));
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            editRelease(release, item);
+        });
         list.appendChild(item);
     });
 }
@@ -315,14 +318,16 @@ function hideForm() {
 }
 
 // Show edit form
-function editRelease(release) {
+function editRelease(release, clickedItem) {
     currentReleaseId = release.id;
     
     // Update active state
     document.querySelectorAll('.release-item').forEach(item => {
         item.classList.remove('active');
     });
-    event.currentTarget.classList.add('active');
+    if (clickedItem) {
+        clickedItem.classList.add('active');
+    }
     
     // Populate form
     document.getElementById('editId').value = release.id;
