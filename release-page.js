@@ -175,7 +175,7 @@ function renderReleasePage(release, artist) {
                         ${artistLink ? `<p class="release-page-artist">${artistLink}</p>` : ''}
                         <h1 class="release-page-title">${release.title || 'Untitled'}</h1>
                         <p class="release-page-date">${release.date || ''}</p>
-                        ${release.description ? `<div class="release-page-description">${release.description}</div>` : ''}
+                        ${release.description && release.description.trim() ? `<div class="release-page-description">${release.description}</div>` : ''}
                         ${streamingLinks.length > 0 ? `
                             <div class="release-page-streaming-links">
                                 ${streamingLinks.map(link => `<a href="${link.url}" target="_blank" class="streaming-link">${link.name}</a>`).join('')}
