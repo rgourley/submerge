@@ -808,7 +808,7 @@ section {
 }
 
 .release-page-section {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 2rem;
 }
@@ -933,7 +933,7 @@ section {
 .release-page-preview {
     margin-top: 4rem;
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
 }
 
 .release-page-preview iframe {

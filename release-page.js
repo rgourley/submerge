@@ -149,7 +149,7 @@ function renderReleasePage(release, artist) {
         const spotifyId = extractSpotifyId(release.spotifyUrl);
         if (spotifyId) {
             const type = release.spotifyUrl.includes('/album/') ? 'album' : 'track';
-            embedHTML = `<iframe style="border-radius:12px" src="https://open.spotify.com/embed/${type}/${spotifyId}?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+            embedHTML = `<iframe style="border-radius:12px" src="https://open.spotify.com/embed/${type}/${spotifyId}?utm_source=generator&theme=0" width="100%" height="600" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
         }
     } else if (release.soundcloudUrl) {
         embedHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(release.soundcloudUrl)}&color=%23888888&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>`;
