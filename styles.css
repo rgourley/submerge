@@ -676,8 +676,14 @@ section {
     margin-bottom: 2rem;
 }
 
-.artist-latest-release {
+.artist-releases {
     margin-top: 4rem;
+}
+
+.artist-releases-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
 }
 
 .release-card-large {
