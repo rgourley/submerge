@@ -105,14 +105,16 @@ function hideArtistForm() {
 }
 
 // Show edit artist form
-function editArtist(artist) {
+function editArtist(artist, clickedItem) {
     currentArtistId = artist.id;
     
     // Update active state
     document.querySelectorAll('.artist-item').forEach(item => {
         item.classList.remove('active');
     });
-    event.currentTarget.classList.add('active');
+    if (clickedItem) {
+        clickedItem.classList.add('active');
+    }
     
     // Populate form
     document.getElementById('editArtistId').value = artist.id;
