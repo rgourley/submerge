@@ -223,11 +223,11 @@ async function uploadImage(file, filename) {
     if (!file) return null;
     
     try {
-        const blob = await put(filename, file.buffer, {
+        const { url } = await put(filename, file.buffer, {
             access: 'public',
             contentType: file.mimetype,
         });
-        return blob.url;
+        return url;
     } catch (error) {
         console.error('Error uploading to Vercel Blob:', error);
         throw error;
