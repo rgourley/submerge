@@ -898,6 +898,14 @@ section {
     margin-top: 1rem;
 }
 
+.release-page-description p {
+    margin: 0 0 1.5rem 0;
+}
+
+.release-page-description p:last-child {
+    margin-bottom: 0;
+}
+
 .release-page-streaming-links {
     display: flex;
     flex-wrap: wrap;
