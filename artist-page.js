@@ -58,6 +58,68 @@ async function loadArtistPage() {
     }
 }
 
+// Update meta tags for SEO and social sharing
+function updateMetaTags(artist) {
+    const baseUrl = window.location.origin;
+    const pageUrl = `${baseUrl}/artist/${artist.id}`;
+    const description = artist.bio ? artist.bio.substring(0, 160) : `${artist.name} on submerge music label`;
+    const title = `${artist.name} - submerge`;
+    
+    // Update title
+    document.title = title;
+    
+    // Update or create meta tags
+    const updateMeta = (name, content, isProperty = false) => {
+        const selector = isProperty ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+        let meta = document.querySelector(selector);
+        if (!meta) {
+            meta = document.createElement('meta');
+            if (isProperty) {
+                meta.setAttribute('property', name);
+            } else {
+                meta.setAttribute('name', name);
+            }
+            document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', content);
+    };
+    
+    // Primary meta tags
+    updateMeta('title', title);
+    updateMeta('description', description);
+    updateMeta('robots', 'index, follow');
+    
+    // Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', pageUrl);
+    
+    // Open Graph tags
+    updateMeta('og:type', 'profile', true);
+    updateMeta('og:url', pageUrl, true);
+    updateMeta('og:title', title, true);
+    updateMeta('og:description', description, true);
+    updateMeta('og:site_name', 'submerge', true);
+    if (artist.image) {
+        updateMeta('og:image', artist.image, true);
+        updateMeta('og:image:width', '1200', true);
+        updateMeta('og:image:height', '630', true);
+    }
+    
+    // Twitter tags
+    updateMeta('twitter:card', 'summary_large_image', true);
+    updateMeta('twitter:url', pageUrl, true);
+    updateMeta('twitter:title', title, true);
+    updateMeta('twitter:description', description, true);
+    if (artist.image) {
+        updateMeta('twitter:image', artist.image, true);
+    }
+}
+
 function renderArtistPage(artist, artistReleases) {
     const container = document.getElementById('artist-page');
     if (!container) {
@@ -66,6 +128,9 @@ function renderArtistPage(artist, artistReleases) {
     }
     
     console.log('Rendering artist page for:', artist.name);
+    
+    // Update meta tags for SEO
+    updateMetaTags(artist);
 
     // Build social links
     const socialLinks = [];
