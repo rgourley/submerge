@@ -21,6 +21,10 @@ async function generateSitemap() {
         const artistsResult = await pool.query('SELECT slug, name, "updatedAt" FROM artists WHERE slug IS NOT NULL ORDER BY name');
         const artists = artistsResult.rows;
         
+        // Get all releases
+        const releasesResult = await pool.query('SELECT slug, title, "updatedAt" FROM releases WHERE slug IS NOT NULL ORDER BY date DESC, "createdAt" DESC');
+        const releases = releasesResult.rows;
+        
         const baseUrl = 'https://submergemusic.com';
         const now = new Date().toISOString().split('T')[0];
         
@@ -71,11 +75,25 @@ async function generateSitemap() {
   </url>`;
         }
         
+        // Add release pages
+        for (const release of releases) {
+            const lastmod = release.updatedAt 
+                ? new Date(release.updatedAt).toISOString().split('T')[0]
+                : now;
+            sitemap += `
+  <url>
+    <loc>${baseUrl}/release/${release.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+        }
+        
         sitemap += `
 </urlset>`;
         
         fs.writeFileSync(path.join(__dirname, 'sitemap.xml'), sitemap);
-        console.log(`✅ Sitemap generated with ${artists.length} artist pages`);
+        console.log(`✅ Sitemap generated with ${artists.length} artist pages and ${releases.length} release pages`);
         
     } catch (error) {
         console.error('Error generating sitemap:', error);
