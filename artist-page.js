@@ -156,6 +156,7 @@ function renderArtistPage(artist, artistReleases) {
                         if (release.soundcloudUrl) releaseLinks.push({ name: 'SoundCloud', url: release.soundcloudUrl });
                         if (release.bandcampUrl) releaseLinks.push({ name: 'Bandcamp', url: release.bandcampUrl });
                         if (release.appleMusicUrl) releaseLinks.push({ name: 'Apple Music', url: release.appleMusicUrl });
+                        if (release.tidalUrl) releaseLinks.push({ name: 'Tidal', url: release.tidalUrl });
                         if (release.youtubeUrl) releaseLinks.push({ name: 'YouTube', url: release.youtubeUrl });
                         if (release.otherUrl) releaseLinks.push({ name: 'Other', url: release.otherUrl });
                         

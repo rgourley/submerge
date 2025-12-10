@@ -48,10 +48,16 @@ async function initDB() {
                 "bandcampUrl" TEXT,
                 "appleMusicUrl" TEXT,
                 "youtubeUrl" TEXT,
+                "tidalUrl" TEXT,
                 "otherUrl" TEXT,
                 "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "updatedAt" TIMESTAMP
             )
+        `);
+        
+        // Add tidalUrl column if it doesn't exist (for existing databases)
+        await pool.query(`
+            ALTER TABLE releases ADD COLUMN IF NOT EXISTS "tidalUrl" TEXT
         `);
         
         // Create artists table
@@ -118,8 +124,8 @@ async function getReleases() {
 async function saveRelease(release) {
     try {
         const query = `
-            INSERT INTO releases (id, "artistId", title, date, image, "spotifyUrl", "soundcloudUrl", "bandcampUrl", "appleMusicUrl", "youtubeUrl", "otherUrl", "createdAt")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            INSERT INTO releases (id, "artistId", title, date, image, "spotifyUrl", "soundcloudUrl", "bandcampUrl", "appleMusicUrl", "youtubeUrl", "tidalUrl", "otherUrl", "createdAt")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             ON CONFLICT (id) 
             DO UPDATE SET 
                 "artistId" = EXCLUDED."artistId",
@@ -131,6 +137,7 @@ async function saveRelease(release) {
                 "bandcampUrl" = EXCLUDED."bandcampUrl",
                 "appleMusicUrl" = EXCLUDED."appleMusicUrl",
                 "youtubeUrl" = EXCLUDED."youtubeUrl",
+                "tidalUrl" = EXCLUDED."tidalUrl",
                 "otherUrl" = EXCLUDED."otherUrl",
                 "updatedAt" = CURRENT_TIMESTAMP
         `;
@@ -145,6 +152,7 @@ async function saveRelease(release) {
             release.bandcampUrl || '',
             release.appleMusicUrl || '',
             release.youtubeUrl || '',
+            release.tidalUrl || '',
             release.otherUrl || '',
             release.createdAt || new Date()
         ]);
@@ -352,6 +360,7 @@ app.post('/api/releases', upload.single('image'), async (req, res) => {
             bandcampUrl: req.body.bandcampUrl || '',
             appleMusicUrl: req.body.appleMusicUrl || '',
             youtubeUrl: req.body.youtubeUrl || '',
+            tidalUrl: req.body.tidalUrl || '',
             otherUrl: req.body.otherUrl || '',
             createdAt: new Date().toISOString()
         };

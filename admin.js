@@ -333,6 +333,7 @@ function editRelease(release) {
     document.getElementById('editSoundcloudUrl').value = release.soundcloudUrl || '';
     document.getElementById('editBandcampUrl').value = release.bandcampUrl || '';
     document.getElementById('editAppleMusicUrl').value = release.appleMusicUrl || '';
+    document.getElementById('editTidalUrl').value = release.tidalUrl || '';
     document.getElementById('editYoutubeUrl').value = release.youtubeUrl || '';
     document.getElementById('editOtherUrl').value = release.otherUrl || '';
     document.getElementById('editImageUrl').value = release.image && !release.image.startsWith('/uploads/') ? release.image : '';
@@ -378,6 +379,7 @@ document.getElementById('releaseForm').addEventListener('submit', async (e) => {
     formData.append('soundcloudUrl', document.getElementById('soundcloudUrl').value);
     formData.append('bandcampUrl', document.getElementById('bandcampUrl').value);
     formData.append('appleMusicUrl', document.getElementById('appleMusicUrl').value);
+    formData.append('tidalUrl', document.getElementById('tidalUrl').value);
     formData.append('youtubeUrl', document.getElementById('youtubeUrl').value);
     formData.append('otherUrl', document.getElementById('otherUrl').value);
     
@@ -423,6 +425,7 @@ document.getElementById('editReleaseForm').addEventListener('submit', async (e) 
     formData.append('soundcloudUrl', document.getElementById('editSoundcloudUrl').value);
     formData.append('bandcampUrl', document.getElementById('editBandcampUrl').value);
     formData.append('appleMusicUrl', document.getElementById('editAppleMusicUrl').value);
+    formData.append('tidalUrl', document.getElementById('editTidalUrl').value);
     formData.append('youtubeUrl', document.getElementById('editYoutubeUrl').value);
     formData.append('otherUrl', document.getElementById('editOtherUrl').value);
     

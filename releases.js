@@ -98,6 +98,7 @@ function openReleaseModal(release) {
     if (release.soundcloudUrl) links.push({ name: 'SoundCloud', url: release.soundcloudUrl });
     if (release.bandcampUrl) links.push({ name: 'Bandcamp', url: release.bandcampUrl });
     if (release.appleMusicUrl) links.push({ name: 'Apple Music', url: release.appleMusicUrl });
+    if (release.tidalUrl) links.push({ name: 'Tidal', url: release.tidalUrl });
     if (release.youtubeUrl) links.push({ name: 'YouTube', url: release.youtubeUrl });
     if (release.otherUrl) links.push({ name: 'Listen', url: release.otherUrl });
     
