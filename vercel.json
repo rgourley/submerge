@@ -20,6 +20,12 @@
       "dest": "server-neon.js"
     },
     {
+      "src": "/(.*\\.(css|js|svg|jpg|jpeg|png|gif|webp|ico|woff|woff2|ttf|eot))",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
       "src": "/(.*)",
       "dest": "server-neon.js"
     }
