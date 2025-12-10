@@ -2,26 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "server-kv.js",
+      "src": "server-neon.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server-kv.js"
+      "dest": "server-neon.js"
     },
     {
       "src": "/admin",
-      "dest": "server-kv.js"
+      "dest": "server-neon.js"
     },
     {
       "src": "/artist/(.*)",
-      "dest": "server-kv.js"
+      "dest": "server-neon.js"
     },
     {
       "src": "/(.*)",
-      "dest": "server-kv.js"
+      "dest": "server-neon.js"
     }
   ],
   "env": {
